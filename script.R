@@ -11,13 +11,19 @@ for (i in (1:length(namelist))){
     page <- str_c("~/ingresslogs/", str_c(namelist[1],".html")) %>% html()
     logs <- html_nodes(page, xpath = "//div[@id = 'logs']")
 
+    #
     #logs processing
-    logs <- str_replace(logs, '<div([\\s\\S]*)\t', "") %>% str_replace('\t([\\s\\S]*)</div>', "") #removing starting and ending crap
+    #
+    
+    #cleaning up
+    logs <- str_replace(logs, '<div([\\s\\S]*)\t\t\t\t\t', "") %>% str_replace('\t\t\t\t([\\s\\S]*)</div>', "") #cleaning up beginning and ending
+    logs <- str_split(logs, pattern = "<br/>")[[1]] #splitting by original lines
+    logs <- logs[1:5000]
+    
+    #extracting data
+    date <- str_extract_all(logs, '[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}')[[1]]
+    time <- str_extract_all(logs, '[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}')[[1]]
+    regex <- as.character(str_c(namelist[i], "([\\s\\S]*)<a", sep = " "))
+    action <- str_extract_all(logs[[1]], regex) %>% str_replace_all(namelist[i], "") %>% str_replace_all() #issue to solve: bad <a-end definition of action, bc of links and two links in line
 }
 
-#testing some regexp stuff
-
-test.logs = "<div role=\"tabpanel\" class=\"tab-pane active\" id=\"logs\" data-hc-id=\"86b4c913391d262bc47097536000\">\n\t\t\t\t\t2016-03-22 16:02:28 pachatka deployed a Resonator on <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.926787,30.316478&amp;z=17&amp;pll=59.926787,30.316478\">Почта России 190031</a> (Sennaya ploshchad', 13, Sankt-Peterburg, Russia, 190031)<br/>2016-03-22 16:02:28 pachatka captured <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.926787,30.316478&amp;z=17&amp;pll=59.926787,30.316478\">Почта России 190031</a> (Sennaya ploshchad', 13, Sankt-Peterburg, Russia, 190031)<br/>2016-03-22 16:02:26 pachatka deployed a Resonator on <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.926792,30.316875&amp;z=17&amp;pll=59.926792,30.316875\">Дельфинчики</a> (pereulok Grivtsova, 13, Sankt-Peterburg, Russia, 190031)<br/>"
-str_replace(test.logs, '<div([\\s\\S]*)\t', "")
-test.logs1 = "2015-11-23 13:26:03 pachatka destroyed the Link <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.949544,30.317697&amp;z=17&amp;pll=59.949544,30.317697\">Кролик Удачи</a> (territoriya Petropavlovskaya Krepost', 3, Sankt-Peterburg, Russia, 191186) to <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.94968,30.318578&amp;z=17&amp;pll=59.94968,30.318578\">Табличка Невские Ворота</a> (territoriya Petropavlovskaya Krepost', 3, Saint Petersburg, Russia, 191186)<br/>2015-11-23 13:26:03 pachatka destroyed a Control Field @ <a target=\"_blank\" href=\"https://www.ingress.com/intel?ll=59.94968,30.318578&amp;z=17&amp;pll=59.94968,30.318578\">Табличка Невские Ворота</a> (territoriya Petropavlovskaya Krepost', 3, Saint Petersburg, Russia, 191186) +1 MUs<br/>\t\t\t\t<span class=\"hcc hc__ht hc_86b4c913391d262bc47097536000\" data-hc-id=\"86b4c913391d262bc47097536000\"><svg width=\"11\" height=\"11\" viewbox=\"0 0 511.626 511.626\"><path d=\"M477.371,127.44c-22.843-28.074-53.871-50.249-93.076-66.523c-39.204-16.272-82.035-24.41-128.478-24.41c-34.643,0-67.762,4.805-99.357,14.417c-31.595,9.611-58.812,22.602-81.653,38.97c-22.845,16.37-41.018,35.832-54.534,58.385C6.757,170.833,0,194.484,0,219.228c0,28.549,8.61,55.3,25.837,80.234c17.227,24.931,40.778,45.871,70.664,62.811c-2.096,7.611-4.57,14.846-7.426,21.693c-2.855,6.852-5.424,12.474-7.708,16.851c-2.286,4.377-5.376,9.233-9.281,14.562c-3.899,5.328-6.849,9.089-8.848,11.275c-1.997,2.19-5.28,5.812-9.851,10.849c-4.565,5.048-7.517,8.329-8.848,9.855c-0.193,0.089-0.953,0.952-2.285,2.567c-1.331,1.615-1.999,2.423-1.999,2.423l-1.713,2.566c-0.953,1.431-1.381,2.334-1.287,2.707c0.096,0.373-0.094,1.331-0.57,2.851c-0.477,1.526-0.428,2.669,0.142,3.433v0.284c0.765,3.429,2.43,6.187,4.998,8.277c2.568,2.092,5.474,2.95,8.708,2.563c12.375-1.522,23.223-3.606,32.548-6.276c49.87-12.758,93.649-35.782,131.334-69.097c14.272,1.522,28.072,2.286,41.396,2.286c46.442,0,89.271-8.138,128.479-24.417c39.208-16.272,70.233-38.448,93.072-66.517c22.843-28.062,34.263-58.663,34.263-91.781C511.626,186.108,500.207,155.509,477.371,127.44z\"/></svg><span class=\"hcc hc__htcount\">+</span></span></div>"
-str_replace(test.logs1, '\t([\\s\\S]*)</div>', "")
