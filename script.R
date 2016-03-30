@@ -34,11 +34,6 @@ for (i in (1:length(namelist))){
         }
       }
     }
-    action <- word(logs[[1]][action == "destroyed"])
+    coord <- sapply(logs[[1]], function(x) str_extract_all(x, '[[:digit:]]{2}\\.[[:digit:]]*,[[:digit:]]{2}\\.[[:digit:]]*')[[1]][1]) %>% na.omit()
     
-}
-
-for (i in 1:5000){
-  action[i] = word(logs[[1]][i],4)
-  cat(action[i])
 }
