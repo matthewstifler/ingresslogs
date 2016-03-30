@@ -13,7 +13,7 @@ for (i in (1:length(namelist))){
     places <- c()
     
     #loading page, extracting logs from it
-    page <- str_c("~/ingresslogs/", str_c(namelist[i],".html")) %>% html()
+    page <- str_c("~/ingresslogs/save", str_c(namelist[i],".html")) %>% html()
     logs <- html_nodes(page, xpath = "//div[@id = 'logs']")
 
     #
