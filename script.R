@@ -23,7 +23,22 @@ for (i in (1:length(namelist))){
     #extracting data
     date <- str_extract_all(logs, '[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}')[[1]]
     time <- str_extract_all(logs, '[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}')[[1]]
-    regex <- as.character(str_c(namelist[i], "([\\s\\S]*)<a", sep = " "))
-    action <- str_extract_all(logs[[1]], regex) %>% str_replace_all(namelist[i], "") %>% str_replace_all() #issue to solve: bad <a-end definition of action, bc of links and two links in line
+    for (i in 1:5000){
+      action[i] = word(logs[[1]][i],4)
+      if (action[i] == "destroyed") {
+        action[i] = word(logs[[1]][i], 4, 6)
+        action[i] = str_replace(action[i], " a", "")
+        action[i] = str_replace(action[i], " the", "")
+        if (action[i] == "destroyed Control"){
+          action[i] = "destroyed control field"
+        }
+      }
+    }
+    action <- word(logs[[1]][action == "destroyed"])
+    
 }
 
+for (i in 1:5000){
+  action[i] = word(logs[[1]][i],4)
+  cat(action[i])
+}
