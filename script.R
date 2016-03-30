@@ -3,10 +3,12 @@ require(stringr)
 require(dplyr)
 require(tm)
 
-#cycle takes a name of a player from a given list and loads according html page
+#cycle takes a name of a player from a given list and loads according html page, cleans logs up, splits them by <br> tag and pulls info from each record
 
 
 for (i in (1:length(namelist))){
+    action <- c()
+    places <- c()
     #loading page, extracting logs from it
     page <- str_c("~/ingresslogs/", str_c(namelist[1],".html")) %>% html()
     logs <- html_nodes(page, xpath = "//div[@id = 'logs']")
@@ -32,8 +34,19 @@ for (i in (1:length(namelist))){
         if (action[i] == "destroyed Control"){
           action[i] = "destroyed control field"
         }
+        action[i] = tolower(action[i])
       }
     }
+    
     coord <- sapply(logs[[1]], function(x) str_extract_all(x, '[[:digit:]]{2}\\.[[:digit:]]*,[[:digit:]]{2}\\.[[:digit:]]*')[[1]][1]) %>% na.omit()
+    ##places <- sapply(logs[[1]], function(x) ifelse(action == "destroyed link", str_extract_all(x, '\">[\\s\\S]*</a> [\\s\\S]* to'), str_extract_all(x, '\">[\\s\\S]*</a>'))
+    ##further work required to avoid loops
+    for (i in 1:5000){ #hate this but hey it works
+      if (action[i] %in% c("destroyed link", "linked")){
+        places[i] = str_extract(logs[[1]][i], '\">[\\s\\S]*</a> [\\s\\S]* to') %>% str_replace('</a> ([\\s\\S]*) to', "") %>% str_replace('\">', "") %>% paste()
+      } else {
+        places[i] = str_extract(logs[[1]][i], '\">[\\s\\S]*</a>') %>% str_replace('\">', "") %>% str_replace('</a>', "") %>% paste()
+      }
+    }
     
 }
