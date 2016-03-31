@@ -1,5 +1,5 @@
-nevsky = read.table("~/ingresslogs/save/nevsky.txt")
-namelist = nevsky$V1
+petro = read.table("~/ingresslogs/save/petro.txt")
+namelist = petro$V1
 
 #...
 #file names to lower
