@@ -7,6 +7,8 @@ files = list.files("~/ingresslogs/save/", pattern=".html")
 files = str_c("~/ingresslogs/save/", files)
 sapply(files,function(x)file.rename(from=x,to=tolower(x)))
 
+namelist <- namelist[str_c(namelist, ".html") %in% list.files("~/ingresslogs/save/", pattern=".html") == TRUE]
+
 #leroooy
 
 require(rvest)
