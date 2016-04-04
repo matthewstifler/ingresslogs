@@ -7,7 +7,7 @@ files = list.files("~/ingresslogs/save/", pattern=".html")
 files = str_c("~/ingresslogs/save/", files)
 sapply(files,function(x)file.rename(from=x,to=tolower(x)))
 
-namelist <- namelist[str_c(namelist, ".html") %in% list.files("~/ingresslogs/save/", pattern=".html") == TRUE]
+namelist <- namelist[str_c(namelist, ".html") %in% list.files("~/ingresslogs/save/", pattern=".html") == TRUE] #required to extract only data for people both in list & logs
 
 #leroooy
 
@@ -75,3 +75,12 @@ for (i in (1:length(namelist))){
   time.total <- Sys.time() - time.begin + time.total
   cat("Обработаны данные", i, " игроков", "\nВсего прошло", as.integer(time.total)/60, "минут\n")
 }
+
+#coord -> lon, lat
+df <- df[2:ncol(df)]
+coords <- df[,4] %>% as.character() %>% strsplit(",") %>% unlist()
+lat <- coords[c(TRUE, FALSE)]
+lon <- coords[c(FALSE, TRUE)]
+df$lat <- lat
+df$lon <- lon
+df<- df[,c(1:3, 5:ncol(df))]
