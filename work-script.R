@@ -76,11 +76,19 @@ for (i in (1:length(namelist))){
   cat("Обработаны данные", i, " игроков", "\nВсего прошло", as.integer(time.total)/60, "минут\n")
 }
 
+#work is performed on joined df for all players
 #coord -> lon, lat
-df <- df[2:ncol(df)]
-coords <- df[,4] %>% as.character() %>% strsplit(",") %>% unlist()
+coords <- combined.df$coord %>% as.character() %>% strsplit(",") %>% unlist()
 lat <- coords[c(TRUE, FALSE)]
 lon <- coords[c(FALSE, TRUE)]
-df$lat <- lat
-df$lon <- lon
-df<- df[,c(1:3, 5:ncol(df))]
+combined.df$lat <- as.numeric(lat)
+combined.df$lon <- as.numeric(lon)
+combined.df<- combined.df[,c(1:3, 5:ncol(df))]
+
+#remove coord NAs and "" action rows (logs bugs), 
+#change all level-resonator destroy actions with "destroyed resonator", 
+#replace "destroyedn <a" with "destroyed portal", happens b/c of the absense of word for action in log
+combined.df = combined.df[!is.na(combined.df$coord),]
+combined.df = combined.df[!(combined.df$action == ""),]
+levels(combined.df$action) <- str_replace(levels(combined.df$action), "destroyedn l[0-9]", "destroyed resonator")
+levels(combined.df$action) <- str_replace(levels(combined.df$action), "destroyedn <a", "destroyed portal")
