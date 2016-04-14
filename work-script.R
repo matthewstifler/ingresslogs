@@ -92,3 +92,15 @@ combined.df = combined.df[!is.na(combined.df$coord),]
 combined.df = combined.df[!(combined.df$action == ""),]
 levels(combined.df$action) <- str_replace(levels(combined.df$action), "destroyedn l[0-9]", "destroyed resonator")
 levels(combined.df$action) <- str_replace(levels(combined.df$action), "destroyedn <a", "destroyed portal")
+
+
+#maps, engage coefficient and whatever not
+map9 = get_map(location = c("санкт петербург"), zoom = 9, color = "bw", maptype = "roadmap")
+map10 = get_map(location = c("санкт петербург"), zoom = 10, color = "bw", maptype = "roadmap")
+for (i in 1:length(levels(combined.df$district))) {
+  #point maps for two zooms for each district, with automatic saving!
+  filename = str_c(levels(combined.df$district)[i], "-points") %>% str_c("-9") %>% str_c(".png")
+  (ggmap(map9) + geom_point(data = combined.df[combined.df$district == levels(combined.df$district)[i],], aes(x = lon, y = lat, color = district))) %>% ggsave(filename = filename, width = 16, height = 7.61, units = "in", dpi = 75)
+  filename = str_c(levels(combined.df$district)[i], "-points") %>% str_c("-10") %>% str_c(".png")
+  (ggmap(map10) + geom_point(data = combined.df[combined.df$district == levels(combined.df$district)[i],], aes(x = lon, y = lat, color = district))) %>% ggsave(filename = filename, width = 16, height = 7.61, units = "in", dpi = 75)
+}
