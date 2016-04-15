@@ -104,3 +104,12 @@ for (i in 1:length(levels(combined.df$district))) {
   filename = str_c(levels(combined.df$district)[i], "-points") %>% str_c("-10") %>% str_c(".png")
   (ggmap(map10) + geom_point(data = combined.df[combined.df$district == levels(combined.df$district)[i],], aes(x = lon, y = lat, color = district))) %>% ggsave(filename = filename, width = 16, height = 7.61, units = "in", dpi = 75)
 }
+
+#proportions in and out of home
+#calculate where event took place: district -> player-district, portal-district
+#most popular portals
+#traminer - sequences, most popular trajectories (center district)
+combined.df$coord = str_c(combined.df$lat, ",") %>% str_c(combined.df$lon) #restoring coord, serves to create unique ids
+combined.df = merge(x = combined.df, y = data.frame(coord = unique(combined.df$coord), id = 1:length(unique(combined.df$coord))), by.x = "coord", by.y = "coord") #ids
+combined.df = combined.df[,-ncol(combined.df)] #remove id.y
+colnames(combined.df)[c(1,4,5,6,10)] = c("portal-coord", "player-event", "portal-name", "player-name", "portal-id") #pretty names
