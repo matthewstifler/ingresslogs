@@ -104,12 +104,38 @@ for (i in 1:length(levels(combined.df$district))) {
   filename = str_c(levels(combined.df$district)[i], "-points") %>% str_c("-10") %>% str_c(".png")
   (ggmap(map10) + geom_point(data = combined.df[combined.df$district == levels(combined.df$district)[i],], aes(x = lon, y = lat, color = district))) %>% ggsave(filename = filename, width = 16, height = 7.61, units = "in", dpi = 75)
 }
+ggmap(map9) + scale_fill_gradientn(guide="none", colours=heat.colors(20, alpha = 0.15)) + stat_density2d(data = combined.df[combined.df$district == "nevsky",], aes(x = lon, y = lat ,fill = ..level.. ,alpha=..level..), geom = 'polygon') + scale_alpha_continuous(guide="none",range=c(.05,.5)) #heatmap for a singles district, change name for others
 
 #proportions in and out of home
 #calculate where event took place: district -> player-district, portal-district
 #most popular portals
 #traminer - sequences, most popular trajectories (center district)
+
+
 combined.df$coord = str_c(combined.df$lat, ",") %>% str_c(combined.df$lon) #restoring coord, serves to create unique ids
 combined.df = merge(x = combined.df, y = data.frame(coord = unique(combined.df$coord), id = 1:length(unique(combined.df$coord))), by.x = "coord", by.y = "coord") #ids
 combined.df = combined.df[,-ncol(combined.df)] #remove id.y
+#next 4 lines is some mess of reordering and rearranging df
 colnames(combined.df)[c(1,4,5,6,10)] = c("portal-coord", "player-event", "portal-name", "player-name", "portal-id") #pretty names
+combined.df = combined.df[,c(2,3,1,8,9,10,5,4,6,7)] #tidy order
+colnames(combined.df)[c(3, 6:10)] = c("portal.coord", "portal.id", "portal.name", "player.event", "player.name", "player.district")
+combined.df = combined.df[order(combined.df$portal.id),] 
+#creating df for just the portal info
+portals.df = combined.df[,c(3:6)]
+portals.df = portals.df[!duplicated(portals.df$portal.id),]
+
+
+#working w/shapefiles
+library(mapproj)
+library(rgdal)
+setwd("~/ingresslogs")
+distr.shp = readOGR("./shapefiles-boundary/", "boundary-polygon")
+shapes = distr.shp[distr.shp@data$NAME %in% c("Невский район", "Петроградский район","Петродворцовый район","Центральный район"),]
+shapes.df = fortify(shapes)
+ggmap(map9) + geom_polygon(aes(x=long, y=lat, group=group), fill='blue', size=.2,color='black', data=shapes.df, alpha=0.2) #wow shapes mapped
+#let's check now in which disrict each portal is
+districts = c("Невский район", "Петроградский район","Петродворцовый район","Центральный район")
+nevsky.shp = shapes[shapes@data$NAME %in% districts[1],]
+petro.shp = shapes[shapes@data$NAME %in% districts[2],]
+petrodv.shp = shapes[shapes@data$NAME %in% districts[3],]
+center.shp = shapes[shapes@data$NAME %in% districts[4],]
