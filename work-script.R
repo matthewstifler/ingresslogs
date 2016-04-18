@@ -104,7 +104,10 @@ for (i in 1:length(levels(combined.df$district))) {
   filename = str_c(levels(combined.df$district)[i], "-points") %>% str_c("-10") %>% str_c(".png")
   (ggmap(map10) + geom_point(data = combined.df[combined.df$district == levels(combined.df$district)[i],], aes(x = lon, y = lat, color = district))) %>% ggsave(filename = filename, width = 16, height = 7.61, units = "in", dpi = 75)
 }
-ggmap(map9) + scale_fill_gradientn(guide="none", colours=heat.colors(20, alpha = 0.15)) + stat_density2d(data = combined.df[combined.df$district == "nevsky",], aes(x = lon, y = lat ,fill = ..level.. ,alpha=..level..), geom = 'polygon') + scale_alpha_continuous(guide="none",range=c(.05,.5)) #heatmap for a singles district, change name for others
+ggmap(map9) #heatmap for a single district, change name for others
+  + scale_fill_gradientn(guide="none", colours=heat.colors(20, alpha = 0.15))
+  + stat_density2d(data = combined.df[combined.df$district == "nevsky",], aes(x = lon, y = lat ,fill = ..level.. ,alpha=..level..), geom = 'polygon')
+  + scale_alpha_continuous(guide="none",range=c(.05,.5))
 
 #proportions in and out of home
 #calculate where event took place: district -> player-district, portal-district
@@ -133,9 +136,27 @@ distr.shp = readOGR("./shapefiles-boundary/", "boundary-polygon")
 shapes = distr.shp[distr.shp@data$NAME %in% c("Невский район", "Петроградский район","Петродворцовый район","Центральный район"),]
 shapes.df = fortify(shapes)
 ggmap(map9) + geom_polygon(aes(x=long, y=lat, group=group), fill='blue', size=.2,color='black', data=shapes.df, alpha=0.2) #wow shapes mapped
+
 #let's check now in which disrict each portal is
+#honestly, this part looks like I was aiming for as many lines as possible, this needs to be reworked
 districts = c("Невский район", "Петроградский район","Петродворцовый район","Центральный район")
-nevsky.shp = shapes[shapes@data$NAME %in% districts[1],]
+nevsky.shp = shapes[shapes@data$NAME %in% districts[1],] #shape for each dstrict
 petro.shp = shapes[shapes@data$NAME %in% districts[2],]
 petrodv.shp = shapes[shapes@data$NAME %in% districts[3],]
 center.shp = shapes[shapes@data$NAME %in% districts[4],]
+
+coord.df = portals.df
+coordinates(coord.df) <- ~lon+lat
+
+proj4string(coord.df) <- proj4string(petro.shp) #sync projections between coordinate df and shape file
+petro.portals = over(petro.shp, coord.df, returnList = TRUE)[[1]]$portal.id #intersection of points' coordinates w/ shapes. ReturnList is really important!
+proj4string(coord.df) <- proj4string(nevsky.shp)
+nevsky.portals = over(nevsky.shp, coord.df, returnList = TRUE)[[1]]$portal.id
+proj4string(coord.df) <- proj4string(center.shp)
+center.portals = over(center.shp, coord.df, returnList = TRUE)[[1]]$portal.id
+proj4string(coord.df) <- proj4string(petrodv.shp)
+petrodv.portals = over(petrodv.shp, coord.df, returnList = TRUE)[[1]]$portal.id
+portals.df$petro = portals.df$portal.id %in% petro.portals
+portals.df$nevsky = portals.df$portal.id %in% nevsky.portals
+portals.df$center = portals.df$portal.id %in% center.portals
+portals.df$petrodv = portals.df$portal.id %in% petrodv.portals
