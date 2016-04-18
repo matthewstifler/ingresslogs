@@ -168,3 +168,8 @@ selected.df$portal.distrcit = ifelse(selected.df$portal.id %in% selected.portals
               ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$petrodv == TRUE,]$portal.id, "petrodv",
                      ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$center == TRUE,]$portal.id, "center", "none"))))
 selected.df$portal.distrcit = as.factor(selected.df$portal.distrcit)
+
+#proportion table
+levels(selected.df$player.district)[3] = "petrodv"
+tbl = CrossTable(selected.df$player.district, selected.df$portal.distrcit, expected = TRUE)
+
