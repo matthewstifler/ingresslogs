@@ -160,3 +160,11 @@ portals.df$petro = portals.df$portal.id %in% petro.portals
 portals.df$nevsky = portals.df$portal.id %in% nevsky.portals
 portals.df$center = portals.df$portal.id %in% center.portals
 portals.df$petrodv = portals.df$portal.id %in% petrodv.portals
+
+selected.portals.df = portals.df[portals.df$petro == TRUE | portals.df$nevsky == TRUE  | portals.df$center == TRUE | portals.df$petrodv == TRUE, ] #pick only those portals in the 4 districts
+selected.df = combined.df[combined.df$portal.id %in% selected.portals.df$portal.id, ] #same for events
+selected.df$portal.distrcit = ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$nevsky == TRUE,]$portal.id, "nevsky", 
+       ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$petro == TRUE,]$portal.id, "petro",
+              ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$petrodv == TRUE,]$portal.id, "petrodv",
+                     ifelse(selected.df$portal.id %in% selected.portals.df[selected.portals.df$center == TRUE,]$portal.id, "center", "none"))))
+selected.df$portal.distrcit = as.factor(selected.df$portal.distrcit)
