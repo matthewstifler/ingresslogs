@@ -6,7 +6,7 @@ portals.df.backup = portals.df
 for (i in 1:nrow(portals.df)){
   portals.df$name[i] = as.character(combined.df[combined.df$portal.id == portals.df$portal.id[i],]$portal.name) %>% unique()
 }
-portals.df[order(portals.df$freq, decreasing = T),][1:20,c("name", "freq", "portal.coord")]
+portals.df[order(portals.df$freq, decreasing = T),][1:20,c("name", "freq", "lat", "lon")] %>% write.csv("~/ingresslogs/top-city.csv")
 
 #now, proportions of actions between players districts
 for (i in 1:nrow(portals.df)){
