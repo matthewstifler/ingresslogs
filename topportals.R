@@ -22,3 +22,13 @@ top.petro.df = portals.df[portals.df$portal.id %in% over(petro.shp, coord.df, re
 top.nevsky.df = portals.df[portals.df$portal.id %in% over(nevsky.shp, coord.df, returnList = TRUE)[[1]]$portal.id,]
 top.petrodv.df = portals.df[portals.df$portal.id %in% over(petrodv.shp, coord.df, returnList = TRUE)[[1]]$portal.id,]
 top.center.df = portals.df[portals.df$portal.id %in% over(center.shp, coord.df, returnList = TRUE)[[1]]$portal.id,]
+top.petro.df = top.petro.df[order(top.petro.df$freq, decreasing = TRUE),]
+top.nevsky.df = top.nevsky.df[order(top.nevsky.df$freq, decreasing = TRUE),]
+top.petrodv.df = top.petrodv.df[order(top.petrodv.df$freq, decreasing = TRUE),]
+top.center.df = top.center.df[order(top.center.df$freq, decreasing = TRUE),]
+write.csv(top.center.df, "~/ingresslogs/top-center.csv")
+write.csv(top.petro.df, "~/ingresslogs/top-petro.csv")
+write.csv(top.petrodv.df, "~/ingresslogs/top-petrodv.csv")
+write.csv(top.nevsky.df, "~/ingresslogs/top-nevsky.csv")
+
+#actions top
