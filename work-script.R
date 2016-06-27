@@ -173,3 +173,5 @@ selected.df$portal.distrcit = as.factor(selected.df$portal.distrcit)
 levels(selected.df$player.district)[3] = "petrodv"
 tbl = CrossTable(selected.df$player.district, selected.df$portal.distrcit, expected = TRUE)
 
+#add new variable, if an event happened at home district or not
+selected.df$home = ifelse(selected.df$player.district == selected.df$portal.distrcit, T, F)
